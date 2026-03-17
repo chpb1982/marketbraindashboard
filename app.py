@@ -546,6 +546,9 @@ elif not df_analysis.empty:
 else:
     df_all = pd.DataFrame()
 
+if not df_all.empty:
+    df_all = df_all.sort_values("timestamp", ascending=False)
+
 # Apply ticker filter
 all_tickers = sorted(df_all["symbol"].unique().tolist()) if not df_all.empty else []
 with st.sidebar:
