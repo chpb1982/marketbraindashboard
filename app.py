@@ -658,10 +658,10 @@ with tab2:
             st.warning("No data for this combination.")
         else:
             r = row_data.iloc[0]
-            ml_v    = float(r["ml_prob"]   or 0)
-            sent_v  = (float(r["sentiment"] or 0) + 1) / 2
-            mom_v   = (float(r["momentum"]  or 0) + 1) / 2
-            score_v = float(r["score"]      or 0)
+            ml_v    = float(r["ml_prob"] if pd.notna(r["ml_prob"]) else 0)
+            sent_v  = (float(r["sentiment"] if pd.notna(r["sentiment"]) else 0) + 1) / 2
+            mom_v   = (float(r["momentum"] if pd.notna(r["momentum"]) else 0) + 1) / 2
+            score_v = float(r["score"] if pd.notna(r["score"]) else 0)
 
             g1, g2, g3, g4 = st.columns(4)
             with g1: st.plotly_chart(make_gauge(ml_v, "ML Probability", "#3b82f6"), use_container_width=True)
@@ -744,10 +744,10 @@ with tab3:
         df_pipe = df_pipe.sort_values("timestamp", ascending=False).drop_duplicates(["symbol","agent"])
 
         for _, row in df_pipe.iterrows():
-            score   = float(row.get("score") or 0)
-            ml_v    = float(row.get("ml_prob") or 0)
-            sent_v  = float(row.get("sentiment") or 0)
-            mom_v   = float(row.get("momentum") or 0)
+            score   = float(row.get("score") if pd.notna(row.get("score")) else 0)
+            ml_v    = float(row.get("ml_prob") if pd.notna(row.get("ml_prob")) else 0)
+            sent_v  = float(row.get("sentiment") if pd.notna(row.get("sentiment")) else 0)
+            mom_v   = float(row.get("momentum") if pd.notna(row.get("momentum")) else 0)
             status  = row.get("status","—")
             direction = row.get("direction","—")
             entry  = row.get("entry_price")
