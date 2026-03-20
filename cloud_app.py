@@ -76,6 +76,16 @@ def load_data():
         
         # Sort reverse chronological
         df = df.sort_values("Timestamp", ascending=False)
+        
+        # ─── Data Pre-Processing & Extractions ──────────────────────────────────
+        if "Agent" in df.columns and "Status" not in df.columns:
+            df["Status"] = df["Agent"].apply(
+                lambda x: "REJECTED" if "REJECTED" in str(x).upper() else "APPROVED"
+            )
+            df["Agent"] = df["Agent"].apply(
+                lambda x: str(x).replace(" (APPROVED)", "").replace(" (REJECTED)", "")
+            )
+            
         return df
     except Exception as e:
         # If it's the strange <Response 200> error, show more detail
@@ -98,19 +108,6 @@ def load_ml_logs():
             df["trained_at"] = pd.to_datetime(df["trained_at"], errors='coerce')
             df = df.sort_values("trained_at", ascending=False)
         return df
-    except Exception as e:
-        return pd.DataFrame()
-
-# ─── Data Pre-Processing & Extractions ──────────────────────────────────────────
-# Extract Status from Agent names (Since the system embeds it like 'Agent (APPROVED)')
-if "Agent" in df.columns and "Status" not in df.columns:
-    df["Status"] = df["Agent"].apply(
-        lambda x: "REJECTED" if "REJECTED" in str(x).upper() else "APPROVED"
-    )
-    df["Agent"] = df["Agent"].apply(
-        lambda x: str(x).replace(" (APPROVED)", "").replace(" (REJECTED)", "") # Strip status from name
-    )
-
 # ─── KPI Bar ────────────────────────────────────────────────────────────────────
 def show_kpis(df):
     t1, t2, t3, t4, t5, t6 = st.columns(6)
