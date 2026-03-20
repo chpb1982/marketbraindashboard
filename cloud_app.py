@@ -51,8 +51,7 @@ p, li, label { color:#94a3b8 !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ─── Data Loading (GSheet Connection) ──────────────────────────────────────────
-SPREADSHEET_ID = "1jWqSHHTXBD4-tAQsTrf4-BGQKMHhwASGdbPn3LTLun4"
+SPREADSHEET_URL = "https://docs.google.com/spreadsheets/d/1jWqSHHTXBD4-tAQsTrf4-BGQKMHhwASGdbPn3LTLun4"
 
 @st.cache_data(ttl=300) # Fast cache refresh (5 min)
 def load_data():
@@ -61,22 +60,28 @@ def load_data():
         from streamlit_gsheets import GSheetsConnection
         conn = st.connection("gsheets", type=GSheetsConnection)
         
-        # Read the first sheet
-        df = conn.read(spreadsheet=SPREADSHEET_ID, ttl=300)
+        # Read the sheet using the direct URL (it's often more robust than ID only)
+        # We specify worksheet="Sheet1" because that's where agents log.
+        df = conn.read(spreadsheet=SPREADSHEET_URL, ttl=300)
         
-        # Normalize columns (Sheet headers vs code usage)
-        df.columns = [c.strip() for c in df.columns]
+        if df is None or df.empty:
+            return pd.DataFrame()
+
+        # Clean up column names and basic normalization
+        df.columns = [str(c).strip() for c in df.columns]
         
         # Convert timestamp
         if "Timestamp" in df.columns:
-            df["Timestamp"] = pd.to_datetime(df["Timestamp"])
+            df["Timestamp"] = pd.to_datetime(df["Timestamp"], errors='coerce')
         
         # Sort reverse chronological
         df = df.sort_values("Timestamp", ascending=False)
         return df
     except Exception as e:
-        st.error(f"Failed to load data from Google Sheets: {e}")
-        st.info("Ensure you have configured 'st.connection('gsheets')' in your Streamlit Secrets.")
+        # If it's the strange <Response 200> error, show more detail
+        st.error(f"📡 Data Feed Error: {str(e)}")
+        if "200" in str(e):
+            st.info("💡 Tip: Try clearing your Streamlit Cache (sidebar button) if you just shared the sheet.")
         return pd.DataFrame()
 
 # ─── KPI Bar ────────────────────────────────────────────────────────────────────
