@@ -152,7 +152,7 @@ if selected_tickers:
 show_kpis(filtered_df)
 
 # ─── Tables ───────────────────────────────────────────────────────────────────
-tab1, tab2, tab3 = st.tabs(["📋 Trade Ledger", "🔬 Factor Deep-Dive", "🧠 Self-Learning Progress"])
+tab1, tab2, tab3, tab4 = st.tabs(["📋 Trade Ledger", "🔬 Factor Deep-Dive", "🧠 Self-Learning Progress", "📖 Help & Terminology"])
 
 with tab1:
     st.markdown("<div class='section-header'>Synchronized Signal Master List</div>", unsafe_allow_html=True)
@@ -239,6 +239,32 @@ with tab3:
         show_cols = ["trained_at", "model_type", "accuracy", "roc_auc", "f1_score", "train_samples", "test_samples", "feature_count"]
         avail_cols = [c for c in show_cols if c in ml_df.columns]
         st.dataframe(ml_df[avail_cols], use_container_width=True, hide_index=True)
+
+with tab4:
+    st.markdown("<div class='section-header'>MarketBrain System Guide</div>", unsafe_allow_html=True)
+    st.markdown("""
+    ### 🧭 Quick Navigation
+    *   **📋 Trade Ledger**: Your unified master list of all generated signals across every running agent.
+    *   **🔬 Factor Deep-Dive**: A raw look at the internal fundamental metrics (ML, Sentiment, Momentum) that the newer generation of agents (Max2 & Max3) use to build their confidence scores.
+    *   **🧠 Self-Learning Progress**: A live tracker visualizing how the AI models are evolving, recalibrating, and dropping useless features using real market data and outcome feedback.
+    
+    ### 🤖 Agent Directory
+    *   **MarketBrain_Historic**: Legacy signals originating from standard intraday databases.
+    *   **MarketBrain_Pro (Classic)**: The original rule-based trend-following system.
+    *   **Max1**: Upgraded with early implementations of basic ensemble scoring.
+    *   **Max2**: Integrates deep sentiment analysis and dynamic real-time regime filtering.
+    *   **Max3**: The flagship agent featuring automated self-learning, XGBoost/LightGBM probability calibration, and Bayesian feedback loops.
+    
+    ### 📈 Key Terminology
+    *   **Score / Confidence**: An agent's final voting strength (0.0 to 1.0) on whether a ticker should be traded. Usually requires > 0.60 to generate a real trade.
+    *   **ML_Prob**: A percentage chance of the trade's success generated exclusively by the Machine Learning ensemble, detached from human-written rules.
+    *   **Sentiment**: NLP integration scanning for bullish/bearish news velocity.
+    *   **Regime**: Describes the broad market's current phase (e.g. `BULL_STRONG`, `BEAR_WEAK`) which directly alters how aggressively the agents position stop-losses and required minimum scores.
+    
+    ### 🧠 Machine Learning Metrics
+    *   **ROC AUC**: The predictive power of the model. A score of 0.5 is a random coin toss. A resilient score > 0.60 represents statistically significant edge.
+    *   **Base Accuracy**: The sheer percentage of labels the model guessed correctly during Walk-Forward Verification on out-of-sample data.
+    """)
 
 st.markdown("---")
 st.caption("☁️ This dashboard is running on Streamlit Cloud and is connected to the Master Google Sheets API. Zero sync latency for live signals.")
